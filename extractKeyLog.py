@@ -52,6 +52,8 @@ class KeyLogExtractor:
 	    if not line: # i.e. line == EOF
 		break
 
+        logFile.close()
+
 	return keyLog
 
 
