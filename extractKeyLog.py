@@ -92,6 +92,10 @@ def main(argv):
 	print __doc__
 	sys.exit(2)
 
+    if len(opts) == 0:
+	print __doc__
+        sys.exit(1)
+
     for opt, arg in opts:
 	if opt in ("-h", "--help"):
 	    print __doc__
