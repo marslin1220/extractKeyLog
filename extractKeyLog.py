@@ -32,7 +32,7 @@ class KeyLogExtractor:
 
     def extractLogFromFile(self, logName):
 	logFile = open(logName,'r')
-	keyLog = set();
+	keyLog = [];
 
 	while 1:
 	    line = logFile.readline().strip()
@@ -47,7 +47,7 @@ class KeyLogExtractor:
 		    and (line.startswith("W/") or line.startswith("E/"))):
 
 		if line not in keyLog:
-		    keyLog.add(line)
+		    keyLog.append(line)
 	    
 	    if not line: # i.e. line == EOF
 		break
@@ -62,27 +62,35 @@ class KeyLogExtractor:
 	for logName in logFileList:
 	    fileKeyLogMap[logName] = self.extractLogFromFile(logName)
 
-	keyLogIntersection = set()
+	integratedKeyLog = []
 	for logName in fileKeyLogMap.keys():
-	    if len(keyLogIntersection) == 0:
-		keyLogIntersection = set(fileKeyLogMap[logName])
+	    if len(integratedKeyLog) == 0:
+		integratedKeyLog = fileKeyLogMap[logName]
 		continue
 
+            fileKeyLogMapWithLogName = fileKeyLogMap[logName]
 	    if integraterOpt == '&': # intersection
-		keyLogIntersection = keyLogIntersection & fileKeyLogMap[logName]
+		integratedKeyLog =  [val for val in integratedKeyLog if val in fileKeyLogMapWithLogName]
 	    elif integraterOpt == '|': # union
-		keyLogIntersection = keyLogIntersection | fileKeyLogMap[logName]
-	    elif integraterOpt == '-': # difference
-		keyLogIntersection = keyLogIntersection - fileKeyLogMap[logName]
-	    elif integraterOpt == '^': # symmetric difference
-		keyLogIntersection = keyLogIntersection ^ fileKeyLogMap[logName]
+                fileKeyLogMapDiff = [] + fileKeyLogMapWithLogName
+                for var in set(integratedKeyLog) & set(fileKeyLogMapWithLogName):
+                    if var in fileKeyLogMapWithLogName:
+                        fileKeyLogMapDiff.remove(var)
 
-	return keyLogIntersection
+		integratedKeyLog = integratedKeyLog + fileKeyLogMapDiff
+	    elif integraterOpt == '-': # difference
+		integratedKeyLog = [var for var in integratedKeyLog if var not in fileKeyLogMapWithLogName]
+            '''
+	    elif integraterOpt == '^': # symmetric difference
+		integratedKeyLog = integratedKeyLog ^ fileKeyLogMap[logName]
+            '''
+
+	return integratedKeyLog
 
 
 def main(argv):
-    errorLogIntersection = set()
-    normalLogUnion = set()
+    errorLogIntersection = []
+    normalLogUnion = []
     extractor = KeyLogExtractor()
 
     try:
@@ -107,7 +115,7 @@ def main(argv):
 	else:
 	    print >> sys.stderr, "unhandled option %s" % (opt,)
 
-    keyLog = errorLogIntersection - normalLogUnion
+    keyLog = [var for var in errorLogIntersection if var not in normalLogUnion]
 
     for line in keyLog:
 	print line
