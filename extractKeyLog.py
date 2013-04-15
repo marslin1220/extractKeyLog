@@ -12,10 +12,10 @@ __doc__ = '''Usage:
     \t\tPrint this help document.
 
     \t--error-folder=<error-log-folder>
-    \t\tAsign the folder which includes the error log(s).
+    \t\tAssign the folder which includes the error log(s).
 
     \t--normal-folder=<normal-log-folder>
-    \t\tAsign the folder which includes the normal log(s).
+    \t\tAssign the folder which includes the normal log(s).
 '''
 
 
