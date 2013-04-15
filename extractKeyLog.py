@@ -59,27 +59,23 @@ class KeyLogExtractor:
 	fileKeyLogMap = {}
 	logFileList = self.listAllFiles(folderName)
 
-	for logName in logFileList:
-	    fileKeyLogMap[logName] = self.extractLogFromFile(logName)
-
 	integratedKeyLog = []
-	for logName in fileKeyLogMap.keys():
+	for logName in logFileList:
 	    if len(integratedKeyLog) == 0:
-		integratedKeyLog = fileKeyLogMap[logName]
+		integratedKeyLog = self.extractLogFromFile(logName)
 		continue
 
-            fileKeyLogMapWithLogName = fileKeyLogMap[logName]
+            logInFile = self.extractLogFromFile(logName)
 	    if integraterOpt == '&': # intersection
-		integratedKeyLog =  [val for val in integratedKeyLog if val in fileKeyLogMapWithLogName]
+		integratedKeyLog =  [val for val in integratedKeyLog if val in logInFile]
 	    elif integraterOpt == '|': # union
-                fileKeyLogMapDiff = [] + fileKeyLogMapWithLogName
-                for var in set(integratedKeyLog) & set(fileKeyLogMapWithLogName):
-                    if var in fileKeyLogMapWithLogName:
-                        fileKeyLogMapDiff.remove(var)
+                for var in set(integratedKeyLog) & set(logInFile):
+                    if var in logInFile:
+                        logInFile.remove(var)
 
-		integratedKeyLog = integratedKeyLog + fileKeyLogMapDiff
+		integratedKeyLog = integratedKeyLog + logInFile
 	    elif integraterOpt == '-': # difference
-		integratedKeyLog = [var for var in integratedKeyLog if var not in fileKeyLogMapWithLogName]
+		integratedKeyLog = [var for var in integratedKeyLog if var not in logInFile]
             '''
 	    elif integraterOpt == '^': # symmetric difference
 		integratedKeyLog = integratedKeyLog ^ fileKeyLogMap[logName]
