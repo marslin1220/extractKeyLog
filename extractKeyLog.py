@@ -4,18 +4,17 @@ import getopt
 import sys
 
 __author__ = 'Mars'
-__doc__ = '''Usage:
-    \tpython extractKeyLog.py -h
-    \tpython extractKeyLog.py --error-folder=<error-log-folder> [--normal-folder=<normal-log-folder>]
+__doc__ = '''
+usage: \tpython extractKeyLog.py [-h]
+\t  [--error-folder=<error-log-folder>] [--normal-folder=<normal-log-folder>]
 
-    \t-h, --help
-    \t\tPrint this help document.
+  -h, --help \tPrint this help document.
 
-    \t--error-folder=<error-log-folder>
-    \t\tAssign the folder which includes the error log(s).
+  --error-folder=<error-log-folder>
+\t\tAssign the folder which includes the error log(s).
 
-    \t--normal-folder=<normal-log-folder>
-    \t\tAssign the folder which includes the normal log(s).
+  --normal-folder=<normal-log-folder>
+\t\tAssign the folder which includes the normal log(s).
 '''
 
 
