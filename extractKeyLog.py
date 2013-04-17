@@ -39,13 +39,8 @@ class KeyLogExtractor:
 	    # Remove Process ID
 	    line = re.sub(r"\([^)]*\)", "", line)
 
-	    # Remove all the number
-	    line = re.sub(r"[0-9]", "", line)
-
 	    # Only extrace warning(W/) and error (E/)
-	    if (len(line) != 0
-		    and (line.startswith("W/") or line.startswith("E/"))):
-
+	    if (len(line) != 0 and (line.startswith("W/") or line.startswith("E/"))):
 		if line not in keyLog:
 		    keyLog.append(line)
 	    
@@ -62,23 +57,57 @@ class KeyLogExtractor:
 	logFileList = self.listAllFiles(folderName)
 
 	integratedKeyLog = []
+        ignoreNumber = True;
 	for logName in logFileList:
+            logInFile = self.extractLogFromFile(logName)
+
+            # Remove the duplicated log
+            logInFileTemp = [];
+            for var in logInFile[:]:
+                varTemp = re.sub(r"[0-9]", "", var) if ignoreNumber else var # Only work in v2.5 above
+
+                if varTemp in logInFileTemp:
+                    logInFile.remove(var)
+                else:
+                    logInFileTemp.append(varTemp)
+
 	    if len(integratedKeyLog) == 0:
-		integratedKeyLog = self.extractLogFromFile(logName)
+		integratedKeyLog = logInFile
 		continue
 
-            logInFile = self.extractLogFromFile(logName)
 	    if integraterOpt == '&': # intersection
-		integratedKeyLog =  [val for val in integratedKeyLog if val in logInFile]
+                integratedTemp = []
+
+                for integratedLog in integratedKeyLog:
+                    for log in logInFile:
+                        if re.sub(r"[0-9]", "", integratedLog) == re.sub(r"[0-9]", "", log):
+                            integratedTemp.append(integratedLog);
+                            break
+                integratedKeyLog = integratedTemp
+                del integratedTemp
+
+                integratedTemp = []
+                for var in integratedKeyLog:
+                    varTemp = re.sub(r"[0-9]", "", var) if ignoreNumber else var
+
+                    if varTemp in integratedTemp:
+                        integratedKeyLog.remove(var)
+                    else:
+                        integratedTemp.append(varTemp)
+
+                del integratedTemp
+
 	    elif integraterOpt == '|': # union
-                for var in set(integratedKeyLog) & set(logInFile):
-                    if var in logInFile:
-                        logInFile.remove(var)
+                for log in logInFile:
+                    for integratedLog in integratedKeyLog:
+                        if re.sub(r"[0-9]", "", integratedLog) == re.sub(r"[0-9]", "", log):
+                            logInFile.remove(log)
+                            break
 
 		integratedKeyLog = integratedKeyLog + logInFile
+            '''
 	    elif integraterOpt == '-': # difference
 		integratedKeyLog = [var for var in integratedKeyLog if var not in logInFile]
-            '''
 	    elif integraterOpt == '^': # symmetric difference
 		integratedKeyLog = integratedKeyLog ^ fileKeyLogMap[logName]
             '''
@@ -115,8 +144,8 @@ def main(argv):
 
     keyLog = [var for var in errorLogIntersection if var not in normalLogUnion]
 
-    for line in keyLog:
-	print line
+    for var in keyLog:
+        print var
 
     print "extractLogFromFile done!"
 
